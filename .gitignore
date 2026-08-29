@@ -1,0 +1,111 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+*.egg
+build/
+dist/
+.env
+venv/
+.venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# PyTorch Models
+*.pt
+*.pth
+*.ckpt
+
+# Logs
+*.log
+
+# =========================
+# Flutter / Dart
+# =========================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+build/
+
+# Flutter generated
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# Android
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+
+# =========================
+# Firebase
+# =========================
+firebase-debug.log
+firestore-debug.log
+
+# Firebase Admin SDK keys
+firebase-adminsdk*.json
+serviceAccountKey.json
+
+# Flutter Firebase config (optional)
+google-services.json
+GoogleService-Info.plist
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# IntelliJ / Android Studio
+# =========================
+.idea/
+*.iml
+
+# =========================
+# macOS
+# =========================
+.DS_Store
+
+# =========================
+# Linux
+# =========================
+*~
+
+# =========================
+# Windows
+# =========================
+Thumbs.db
+Desktop.ini
+
+# =========================
+# Temporary Files
+# =========================
+tmp/
+temp/
+.cache/
+
+# =========================
+# Secrets
+# =========================
+.env.local
+.env.production
+.env.development
+*.pem
+*.key
+
+# =========================
+# AI Outputs
+# =========================
+runs/
+outputs/
+predictions/
