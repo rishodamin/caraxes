@@ -3,3 +3,4 @@ flask-cors
 Werkzeug
 requests
 python-dotenv
+firebase-admin
