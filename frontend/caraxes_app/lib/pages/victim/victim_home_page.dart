@@ -1,3 +1,6 @@
+import 'package:caraxes_app/pages/victim/report_damage_page.dart';
+import 'package:caraxes_app/pages/victim/safe_zone_page.dart';
+import 'package:caraxes_app/pages/victim/sos_page.dart';
 import 'package:caraxes_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -13,9 +16,9 @@ class _VictimHomePageState extends State<VictimHomePage> {
 
   final List<Widget> _pages = [
     const _VictimDashboard(),
-    const Center(child: Text('Report Damage Page (Placeholder)')),
-    const Center(child: Text('SOS Page (Placeholder)')),
-    const Center(child: Text('Safe Zones Page (Placeholder)')),
+    const ReportDamagePage(),
+    const SOSPage(),
+    const SafeZonePage(),
   ];
 
   @override
@@ -77,12 +80,12 @@ class _VictimDashboard extends StatelessWidget {
       children: [
         Text(
           'Welcome to Caraxes',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        
+
         // Current SOS Status Card
         Card(
           color: Colors.orange.shade100,
@@ -94,12 +97,9 @@ class _VictimDashboard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
-        
+
         // Quick Actions
-        Text(
-          'Quick Actions',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Quick Actions', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -121,12 +121,9 @@ class _VictimDashboard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        
+
         // Recent Reports Section
-        Text(
-          'Recent Reports',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Recent Reports', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         Card(
           child: ListView.builder(
@@ -135,9 +132,7 @@ class _VictimDashboard extends StatelessWidget {
             itemCount: 3,
             itemBuilder: (context, index) {
               return ListTile(
-                leading: const CircleAvatar(
-                  child: Icon(Icons.image),
-                ),
+                leading: const CircleAvatar(child: Icon(Icons.image)),
                 title: Text('Report #${index + 1}'),
                 subtitle: const Text('Pending review...'),
                 trailing: const Icon(Icons.chevron_right),
