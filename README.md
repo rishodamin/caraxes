@@ -8,20 +8,23 @@ The platform combines citizen-reported information with AI-based infrastructure 
 
 ## Demo Videos
 
-### Victim Interface Demo
-
-![](https://github.com/rishodamin/caraxes/demo_videos/victim_interface.mp4)
-
+### Victim Interface
 Demonstrates:
-- User authentication
+- Authentication and role selection
 - Disaster reporting with image upload
-- SOS request submission
+- SOS request creation
 - Safe zone recommendations
-- Citizen-side disaster assistance workflow
 
-### Rescuer Interface Demo
+🎥 [Watch Victim Interface Demo](demo_videos/victim_interface.mp4)
 
-<video src="demo_videos/rescuer_interface.mp4" controls width="900"></video>
+### Rescuer Interface
+Demonstrates:
+- Incident monitoring dashboard
+- Disaster map visualization
+- SOS request management
+- Rescue coordination workflow
+
+🎥 [Watch Rescuer Interface Demo](demo_videos/rescuer_interface.mp4)
 
 Demonstrates:
 - Incident monitoring dashboard
