@@ -2,12 +2,20 @@ from fastapi import FastAPI, UploadFile, File
 from ultralytics import YOLO
 import io
 from PIL import Image
-
+from pathlib import Path
 app = FastAPI(title="Caraxes Disaster AI Inference Engine", version="1.0")
 
-# Load your newly trained custom model weights from the repo path
-model = YOLO('/content/caraxes/ai/damage_detection/weights/best_hazard.pt')
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+MODEL_PATH = BASE_DIR / "weights" / "best_hazard.pt"
+
+if not MODEL_PATH.exists():
+    raise FileNotFoundError(f"Model not found: {MODEL_PATH}")
+
+model = YOLO(str(MODEL_PATH))
+
+print(f"Loaded model: {MODEL_PATH}")
+print(f"Classes: {model.names}")
 # Severity mapping for the backend priority engine
 SEVERITY_MAP = {
     "collapsed_building": {"priority": 1, "severity_score": 100, "action": "Dispatch Heavy Rescue"},

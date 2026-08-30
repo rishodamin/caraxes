@@ -1,6 +1,7 @@
 
 import os
 import logging
+import requests
 
 
 # ---------------------------------
@@ -8,6 +9,16 @@ import logging
 # ---------------------------------
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------
+# FastAPI AI service
+# ---------------------------------
+
+AI_SERVICE_URL = os.getenv(
+    "AI_SERVICE_URL",
+    "http://127.0.0.1:8000/predict"
+)
 
 
 # ---------------------------------
@@ -21,14 +32,11 @@ def run_inference(image_path):
     # ---------------------------------
 
     if not image_path:
-
         raise ValueError(
             "Image path is required"
         )
 
-
     if not isinstance(image_path, str):
-
         raise TypeError(
             "Image path must be a string"
         )
@@ -39,7 +47,6 @@ def run_inference(image_path):
     # ---------------------------------
 
     if not os.path.exists(image_path):
-
         raise FileNotFoundError(
             f"Image file not found: {image_path}"
         )
@@ -50,67 +57,95 @@ def run_inference(image_path):
     # ---------------------------------
 
     if os.path.getsize(image_path) == 0:
-
         raise ValueError(
             "Image file is empty"
         )
 
 
     logger.info(
-        "Running inference on image: %s",
+        "Sending image to AI service: %s",
         image_path
     )
 
 
+    # ---------------------------------
+    # 4. Send image to FastAPI AI service
+    # ---------------------------------
+
     try:
 
-        # ---------------------------------
-        # Temporary mock model
-        # ---------------------------------
-        #
-        # AI teammate will replace this
-        # section with the actual ML model.
-        #
+        # Determine MIME type from file extension
+        extension = os.path.splitext(
+            image_path
+        )[1].lower()
 
-        result = {
-
-            "detections": [
-
-                {
-                    "class": "fire",
-
-                    "confidence": 0.91,
-
-                    "bbox": [
-                        100,
-                        100,
-                        400,
-                        400
-                    ]
-                }
-
-            ],
-
-            "damage_type": "fire",
-
-            "damage_severity": 0.91,
-
-            "zone_classification": "danger"
+        mime_types = {
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png"
         }
 
+        content_type = mime_types.get(
+            extension,
+            "application/octet-stream"
+        )
 
-    except Exception:
+
+        with open(image_path, "rb") as image_file:
+
+            response = requests.post(
+                AI_SERVICE_URL,
+
+                files={
+                    "file": (
+                        os.path.basename(image_path),
+                        image_file,
+                        content_type
+                    )
+                },
+
+                timeout=120
+            )
+
+
+        # Raise exception for HTTP 4xx/5xx
+        response.raise_for_status()
+
+
+    except requests.exceptions.RequestException:
 
         logger.exception(
-            "AI inference failed for image: %s",
+            "AI service request failed for image: %s",
             image_path
         )
 
-        raise
+        raise RuntimeError(
+            "Unable to communicate with AI inference service"
+        )
 
 
     # ---------------------------------
-    # 4. Validate model output
+    # 5. Parse AI response
+    # ---------------------------------
+
+    try:
+
+        result = response.json()
+
+    except ValueError:
+
+        logger.error(
+            "AI service returned invalid JSON: %s",
+            response.text
+        )
+
+        raise ValueError(
+            "AI service returned invalid JSON response"
+        )
+
+
+    # ---------------------------------
+    # 6. Validate AI response
     # ---------------------------------
 
     if not isinstance(result, dict):
@@ -120,58 +155,24 @@ def run_inference(image_path):
         )
 
 
-    required_fields = [
+    if result.get("status") != "success":
+
+        raise ValueError(
+            "AI model inference was not successful"
+        )
+
+
+    # ---------------------------------
+    # 7. Validate detections
+    # ---------------------------------
+
+    detections = result.get(
         "detections",
-        "damage_type",
-        "damage_severity",
-        "zone_classification"
-    ]
+        []
+    )
 
 
-    for field in required_fields:
-
-        if field not in result:
-
-            raise ValueError(
-                f"AI model response missing field: {field}"
-            )
-
-
-    # ---------------------------------
-    # 5. Validate severity
-    # ---------------------------------
-
-    try:
-
-        severity = float(
-            result["damage_severity"]
-        )
-
-    except (TypeError, ValueError):
-
-        raise ValueError(
-            "AI model returned invalid damage_severity"
-        )
-
-
-    if not 0 <= severity <= 1:
-
-        raise ValueError(
-            "damage_severity must be between 0 and 1"
-        )
-
-
-    result["damage_severity"] = severity
-
-
-    # ---------------------------------
-    # 6. Validate detections
-    # ---------------------------------
-
-    if not isinstance(
-        result["detections"],
-        list
-    ):
+    if not isinstance(detections, list):
 
         raise ValueError(
             "detections must be a list"
@@ -179,35 +180,44 @@ def run_inference(image_path):
 
 
     # ---------------------------------
-    # 7. Validate zone classification
+    # 8. Validate total hazards
     # ---------------------------------
 
-    valid_zones = {
-        "safe",
-        "caution",
-        "danger"
-    }
-
-
-    zone = str(
-        result["zone_classification"]
-    ).lower()
-
-
-    if zone not in valid_zones:
-
-        raise ValueError(
-            "Invalid zone_classification"
-        )
-
-
-    result["zone_classification"] = zone
-
-
-    logger.info(
-        "Inference completed successfully"
+    total_hazards = result.get(
+        "total_hazards_detected",
+        len(detections)
     )
 
 
-    return result
+    if not isinstance(
+        total_hazards,
+        int
+    ):
+
+        raise ValueError(
+            "total_hazards_detected must be an integer"
+        )
+
+
+    # ---------------------------------
+    # 9. Return actual AI response
+    # ---------------------------------
+
+    logger.info(
+        "Inference completed successfully. "
+        "Detected %d hazards.",
+        total_hazards
+    )
+
+
+    return {
+        "status": result.get(
+            "status",
+            "success"
+        ),
+
+        "total_hazards_detected": total_hazards,
+
+        "detections": detections
+    }
 

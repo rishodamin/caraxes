@@ -96,6 +96,63 @@ def save_disaster_report(
         )
 
 
+    # ---------------------------------
+    # Extract actual AI response
+    # ---------------------------------
+
+    detections = report_data.get(
+        "detections",
+        []
+    )
+
+
+    if not isinstance(detections, list):
+
+        raise ValueError(
+            "detections must be a list"
+        )
+
+
+    total_hazards = report_data.get(
+        "total_hazards_detected",
+        len(detections)
+    )
+
+
+    if not isinstance(
+        total_hazards,
+        int
+    ):
+
+        raise ValueError(
+            "total_hazards_detected must be an integer"
+        )
+
+
+    # ---------------------------------
+    # Validate location
+    # ---------------------------------
+
+    location = report_data.get(
+        "location",
+        {}
+    )
+
+
+    if not isinstance(
+        location,
+        dict
+    ):
+
+        raise ValueError(
+            "location must be an object"
+        )
+
+
+    # ---------------------------------
+    # Build Firestore document
+    # ---------------------------------
+
     document_data = {
 
         "location_id": location_id,
@@ -107,75 +164,21 @@ def save_disaster_report(
             "citizen"
         ),
 
-        "location": report_data.get(
-            "location",
-            {}
-        ),
+        "location": location,
 
         "timestamp": report_data.get(
             "timestamp"
         ),
 
-        "detections": report_data.get(
-            "detections",
-            []
+        "status": report_data.get(
+            "status",
+            "success"
         ),
 
-        "damage_type": report_data.get(
-            "damage_type",
-            "unknown"
-        ),
+        "total_hazards_detected": total_hazards,
 
-        "damage_severity": report_data.get(
-            "damage_severity",
-            0
-        ),
-
-        "zone_classification": report_data.get(
-            "zone_classification",
-            "safe"
-        )
+        "detections": detections
     }
-
-
-    # ---------------------------------
-    # Validate location
-    # ---------------------------------
-
-    location = document_data["location"]
-
-    if not isinstance(location, dict):
-
-        raise ValueError(
-            "location must be an object"
-        )
-
-
-    # ---------------------------------
-    # Validate severity
-    # ---------------------------------
-
-    try:
-
-        severity = float(
-            document_data["damage_severity"]
-        )
-
-    except (TypeError, ValueError):
-
-        raise ValueError(
-            "damage_severity must be a number"
-        )
-
-
-    if not 0 <= severity <= 1:
-
-        raise ValueError(
-            "damage_severity must be between 0 and 1"
-        )
-
-
-    document_data["damage_severity"] = severity
 
 
     # ---------------------------------
@@ -213,6 +216,14 @@ def save_disaster_report(
         raise
 
 
+    logger.info(
+        "Disaster report saved successfully "
+        "for location_id=%s, image_id=%s",
+        location_id,
+        image_id
+    )
+
+
     return True
 
 
@@ -238,7 +249,10 @@ def get_all_hazards():
 
                 data = doc.to_dict()
 
-                if not isinstance(data, dict):
+                if not isinstance(
+                    data,
+                    dict
+                ):
 
                     logger.warning(
                         "Skipping malformed Firestore "
@@ -251,7 +265,9 @@ def get_all_hazards():
 
                 data["location_id"] = doc.id
 
-                hazards.append(data)
+                hazards.append(
+                    data
+                )
 
             except Exception:
 
@@ -283,3 +299,4 @@ def get_all_hazards():
         )
 
         raise
+

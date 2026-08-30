@@ -319,8 +319,40 @@ def infer():
         }), 500
 
 
+    if ai_result.get("status") != "success":
+
+        logger.error(
+            "AI inference unsuccessful for image_id=%s",
+            image_id
+        )
+
+        return jsonify({
+            "success": False,
+            "error": "AI model inference was not successful"
+        }), 500
+
+
+    detections = ai_result.get(
+        "detections",
+        []
+    )
+
+
+    if not isinstance(detections, list):
+
+        logger.error(
+            "Invalid detections returned by AI for image_id=%s",
+            image_id
+        )
+
+        return jsonify({
+            "success": False,
+            "error": "Invalid detections returned by AI model"
+        }), 500
+
+
     # --------------------------------
-    # 9. Build response
+    # 9. Build response using actual AI contract
     # --------------------------------
 
     response = {
@@ -344,25 +376,17 @@ def infer():
             timezone.utc
         ).isoformat(),
 
-        "detections": ai_result.get(
-            "detections",
-            []
+        "status": ai_result.get(
+            "status",
+            "success"
         ),
 
-        "damage_type": ai_result.get(
-            "damage_type",
-            "unknown"
+        "total_hazards_detected": ai_result.get(
+            "total_hazards_detected",
+            len(detections)
         ),
 
-        "damage_severity": ai_result.get(
-            "damage_severity",
-            0
-        ),
-
-        "zone_classification": ai_result.get(
-            "zone_classification",
-            "safe"
-        )
+        "detections": detections
     }
 
 
