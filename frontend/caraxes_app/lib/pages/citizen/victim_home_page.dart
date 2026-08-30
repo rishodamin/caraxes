@@ -1,7 +1,7 @@
-import 'package:caraxes_app/pages/victim/home_screen.dart';
-import 'package:caraxes_app/pages/victim/report_screen.dart';
-import 'package:caraxes_app/pages/victim/safe_zones_screen.dart';
-import 'package:caraxes_app/pages/victim/sos_screen.dart';
+import 'package:caraxes_app/pages/citizen/home_screen.dart';
+import 'package:caraxes_app/pages/citizen/report_screen.dart';
+import 'package:caraxes_app/pages/citizen/safe_zones_screen.dart';
+import 'package:caraxes_app/pages/citizen/sos_screen.dart';
 import 'package:flutter/material.dart';
 
 
