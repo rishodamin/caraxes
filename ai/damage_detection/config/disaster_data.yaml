@@ -1,0 +1,7 @@
+names:
+  0: collapsed_building
+  1: flooded_road
+  2: fire_smoke
+path: /content/master_disaster_dataset
+train: images/train
+val: images/val
