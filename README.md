@@ -10,7 +10,7 @@ The platform combines citizen-reported information with AI-based infrastructure 
 
 ### Victim Interface Demo
 
-<video src="demo_videos/victim_interface.mp4" controls width="900"></video>
+![](https://github.com/rishodamin/caraxes/demo_videos/victim_interface.mp4)
 
 Demonstrates:
 - User authentication
