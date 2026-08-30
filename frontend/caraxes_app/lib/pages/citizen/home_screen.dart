@@ -56,10 +56,7 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              _buildSectionHeader(
-                title: 'Recent Reports',
-                onActionTap: () {},
-              ),
+              _buildSectionHeader(title: 'Recent Reports', onActionTap: () {}),
 
               const SizedBox(height: 12),
 
@@ -127,10 +124,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               Text(
                 'Welcome back 👋',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF667085),
-                ),
+                style: TextStyle(fontSize: 14, color: Color(0xFF667085)),
               ),
               SizedBox(height: 3),
               Text(
@@ -150,9 +144,7 @@ class HomeScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: const Color(0xFFE4E7EC),
-            ),
+            border: Border.all(color: const Color(0xFFE4E7EC)),
           ),
           child: const Icon(
             Icons.notifications_none_rounded,
@@ -169,10 +161,7 @@ class HomeScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFF155EEF),
-            Color(0xFF1849A9),
-          ],
+          colors: [Color(0xFF155EEF), Color(0xFF1849A9)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -245,46 +234,29 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 5),
           const Row(
             children: [
-              Icon(
-                Icons.location_on_outlined,
-                color: Colors.white70,
-                size: 17,
-              ),
+              Icon(Icons.location_on_outlined, color: Colors.white70, size: 17),
               SizedBox(width: 5),
               Text(
                 'Coimbatore',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.white70, fontSize: 14),
               ),
             ],
           ),
           const SizedBox(height: 18),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 11,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.10),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Row(
               children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  color: Colors.white,
-                  size: 18,
-                ),
+                Icon(Icons.info_outline_rounded, color: Colors.white, size: 18),
                 SizedBox(width: 9),
                 Expanded(
                   child: Text(
                     'Stay alert and avoid low-lying areas.',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 13),
                   ),
                 ),
               ],
@@ -295,10 +267,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle({
-    required String title,
-    required String subtitle,
-  }) {
+  Widget _buildSectionTitle({required String title, required String subtitle}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -313,10 +282,7 @@ class HomeScreen extends StatelessWidget {
         const SizedBox(height: 3),
         Text(
           subtitle,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Color(0xFF667085),
-          ),
+          style: const TextStyle(fontSize: 13, color: Color(0xFF667085)),
         ),
       ],
     );
@@ -367,9 +333,7 @@ class HomeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: const Color(0xFFEAECF0),
-          ),
+          border: Border.all(color: const Color(0xFFEAECF0)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,11 +345,7 @@ class HomeScreen extends StatelessWidget {
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(13),
               ),
-              child: Icon(
-                icon,
-                color: iconColor,
-                size: 24,
-              ),
+              child: Icon(icon, color: iconColor, size: 24),
             ),
             const SizedBox(height: 14),
             Text(
@@ -399,10 +359,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: const TextStyle(
-                fontSize: 11,
-                color: Color(0xFF667085),
-              ),
+              style: const TextStyle(fontSize: 11, color: Color(0xFF667085)),
             ),
           ],
         ),
@@ -423,9 +380,7 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(
-          color: const Color(0xFFEAECF0),
-        ),
+        border: Border.all(color: const Color(0xFFEAECF0)),
       ),
       child: Row(
         children: [
@@ -436,11 +391,7 @@ class HomeScreen extends StatelessWidget {
               color: const Color(0xFFF2F4F7),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF475467),
-              size: 23,
-            ),
+            child: Icon(icon, color: const Color(0xFF475467), size: 23),
           ),
           const SizedBox(width: 13),
           Expanded(
@@ -475,10 +426,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 9,
-              vertical: 6,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
             decoration: BoxDecoration(
               color: statusColor.withOpacity(0.10),
               borderRadius: BorderRadius.circular(20),
@@ -504,9 +452,7 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: const Color(0xFFEAECF0),
-        ),
+        border: Border.all(color: const Color(0xFFEAECF0)),
       ),
       child: Row(
         children: [
@@ -592,19 +538,13 @@ class HomeScreen extends StatelessWidget {
                 SizedBox(height: 3),
                 Text(
                   'Call for immediate assistance',
-                  style: TextStyle(
-                    color: Colors.white60,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: Colors.white60, fontSize: 11),
                 ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 9,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),

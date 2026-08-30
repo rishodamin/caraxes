@@ -59,12 +59,14 @@ class AuthService {
       idToken: googleAuth.idToken,
     );
 
-    final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+    final userCredential = await FirebaseAuth.instance.signInWithCredential(
+      credential,
+    );
 
     // Check if the user document exists; if not, create it without a role.
     final uid = userCredential.user!.uid;
     final doc = await _db.collection('users').doc(uid).get();
-    
+
     if (!doc.exists) {
       await _db.collection('users').doc(uid).set({
         'uid': uid,
