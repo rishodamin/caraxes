@@ -36,7 +36,10 @@ def allowed_file(filename):
 @prediction_bp.route("/infer", methods=["POST"])
 def infer():
 
-    # Check image
+    # -------------------------
+    # 1. Check image
+    # -------------------------
+
     if "image" not in request.files:
         return jsonify({
             "success": False,
@@ -57,7 +60,26 @@ def infer():
             "error": "Only JPG, JPEG and PNG images are allowed"
         }), 400
 
-    # Metadata
+    # -------------------------
+    # 2. Get metadata
+    # -------------------------
+
+    image_id = request.form.get("image_id")
+
+    if not image_id:
+        return jsonify({
+            "success": False,
+            "error": "image_id is required"
+        }), 400
+
+    location_id = request.form.get("location_id")
+
+    if not location_id:
+        return jsonify({
+            "success": False,
+            "error": "location_id is required"
+        }), 400
+
     source_type = request.form.get(
         "source_type",
         "citizen"
@@ -66,12 +88,18 @@ def infer():
     lat = request.form.get("lat")
     lon = request.form.get("lon")
 
-    # Generate unique filename
+    # -------------------------
+    # 3. Generate unique filename
+    # -------------------------
+
     extension = image.filename.rsplit(
-        ".", 1
+        ".",
+        1
     )[1].lower()
 
-    filename = f"{uuid.uuid4().hex}.{extension}"
+    filename = (
+        f"{uuid.uuid4().hex}.{extension}"
+    )
 
     image_path = os.path.join(
         UPLOAD_FOLDER,
@@ -80,20 +108,34 @@ def infer():
 
     image.save(image_path)
 
-    # AI inference
+    # -------------------------
+    # 4. AI inference
+    # -------------------------
+
     try:
-        ai_result = run_inference(image_path)
+
+        ai_result = run_inference(
+            image_path
+        )
 
     except Exception as e:
+
         return jsonify({
             "success": False,
             "error": "AI inference failed",
             "details": str(e)
         }), 500
 
-    # Final response
+    # -------------------------
+    # 5. Build response
+    # -------------------------
+
     response = {
         "success": True,
+
+        "image_id": image_id,
+
+        "location_id": location_id,
 
         "source_type": source_type,
 
