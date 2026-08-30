@@ -1,7 +1,9 @@
+
 from flask import Blueprint, request, jsonify
 from datetime import datetime, timezone
 import os
 import uuid
+import logging
 
 from services.inference_service import run_inference
 from services.firestore_service import save_disaster_report
@@ -21,12 +23,29 @@ ALLOWED_EXTENSIONS = {
     "png"
 }
 
+ALLOWED_SOURCE_TYPES = {
+    "citizen",
+    "drone",
+    "satellite"
+}
+
 
 os.makedirs(
     UPLOAD_FOLDER,
     exist_ok=True
 )
 
+
+# --------------------------------
+# Logging
+# --------------------------------
+
+logger = logging.getLogger(__name__)
+
+
+# --------------------------------
+# Check allowed image extension
+# --------------------------------
 
 def allowed_file(filename):
 
@@ -40,6 +59,46 @@ def allowed_file(filename):
     )
 
 
+# --------------------------------
+# Validate coordinates
+# --------------------------------
+
+def parse_coordinate(value, field_name):
+
+    if value is None or value == "":
+        return None
+
+    try:
+
+        coordinate = float(value)
+
+    except (TypeError, ValueError):
+
+        raise ValueError(
+            f"{field_name} must be a valid number"
+        )
+
+    # Latitude range
+    if field_name == "lat":
+
+        if not -90 <= coordinate <= 90:
+
+            raise ValueError(
+                "Latitude must be between -90 and 90"
+            )
+
+    # Longitude range
+    if field_name == "lon":
+
+        if not -180 <= coordinate <= 180:
+
+            raise ValueError(
+                "Longitude must be between -180 and 180"
+            )
+
+    return coordinate
+
+
 @prediction_bp.route(
     "/infer",
     methods=["POST"]
@@ -47,7 +106,19 @@ def allowed_file(filename):
 def infer():
 
     # --------------------------------
-    # 1. Check image
+    # 1. Check request content
+    # --------------------------------
+
+    if not request.files:
+
+        return jsonify({
+            "success": False,
+            "error": "Multipart form data with an image is required"
+        }), 400
+
+
+    # --------------------------------
+    # 2. Check image
     # --------------------------------
 
     if "image" not in request.files:
@@ -57,14 +128,17 @@ def infer():
             "error": "Image is required"
         }), 400
 
+
     image = request.files["image"]
 
-    if image.filename == "":
+
+    if image.filename is None or image.filename == "":
 
         return jsonify({
             "success": False,
             "error": "No image selected"
         }), 400
+
 
     if not allowed_file(image.filename):
 
@@ -78,12 +152,13 @@ def infer():
 
 
     # --------------------------------
-    # 2. Get metadata
+    # 3. Get metadata
     # --------------------------------
 
     image_id = request.form.get(
         "image_id"
     )
+
 
     if not image_id:
 
@@ -97,6 +172,7 @@ def infer():
         "location_id"
     )
 
+
     if not location_id:
 
         return jsonify({
@@ -108,14 +184,46 @@ def infer():
     source_type = request.form.get(
         "source_type",
         "citizen"
-    )
+    ).lower()
 
-    lat = request.form.get("lat")
-    lon = request.form.get("lon")
+
+    if source_type not in ALLOWED_SOURCE_TYPES:
+
+        return jsonify({
+            "success": False,
+            "error": (
+                "Invalid source_type. "
+                "Allowed values: citizen, drone, satellite"
+            )
+        }), 400
 
 
     # --------------------------------
-    # 3. Generate filename
+    # 4. Validate coordinates
+    # --------------------------------
+
+    try:
+
+        lat = parse_coordinate(
+            request.form.get("lat"),
+            "lat"
+        )
+
+        lon = parse_coordinate(
+            request.form.get("lon"),
+            "lon"
+        )
+
+    except ValueError as e:
+
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 400
+
+
+    # --------------------------------
+    # 5. Generate filename
     # --------------------------------
 
     extension = image.filename.rsplit(
@@ -123,21 +231,43 @@ def infer():
         1
     )[1].lower()
 
+
     filename = (
         f"{uuid.uuid4().hex}."
         f"{extension}"
     )
+
 
     image_path = os.path.join(
         UPLOAD_FOLDER,
         filename
     )
 
-    image.save(image_path)
+
+    # --------------------------------
+    # 6. Save uploaded image
+    # --------------------------------
+
+    try:
+
+        image.save(
+            image_path
+        )
+
+    except Exception:
+
+        logger.exception(
+            "Failed to save uploaded image"
+        )
+
+        return jsonify({
+            "success": False,
+            "error": "Failed to save image"
+        }), 500
 
 
     # --------------------------------
-    # 4. AI inference
+    # 7. AI inference
     # --------------------------------
 
     try:
@@ -146,17 +276,51 @@ def infer():
             image_path
         )
 
-    except Exception as e:
+    except Exception:
+
+        logger.exception(
+            "AI inference failed for image_id=%s",
+            image_id
+        )
+
+        # Remove uploaded image if inference fails
+        try:
+
+            if os.path.exists(image_path):
+                os.remove(image_path)
+
+        except OSError:
+
+            logger.exception(
+                "Failed to remove image after inference failure"
+            )
+
 
         return jsonify({
             "success": False,
-            "error": "AI inference failed",
-            "details": str(e)
+            "error": "AI inference failed"
         }), 500
 
 
     # --------------------------------
-    # 5. Build response
+    # 8. Validate AI response
+    # --------------------------------
+
+    if not isinstance(ai_result, dict):
+
+        logger.error(
+            "Invalid AI response for image_id=%s",
+            image_id
+        )
+
+        return jsonify({
+            "success": False,
+            "error": "Invalid response from AI model"
+        }), 500
+
+
+    # --------------------------------
+    # 9. Build response
     # --------------------------------
 
     response = {
@@ -171,17 +335,9 @@ def infer():
 
         "location": {
 
-            "lat": (
-                float(lat)
-                if lat
-                else None
-            ),
+            "lat": lat,
 
-            "lon": (
-                float(lon)
-                if lon
-                else None
-            )
+            "lon": lon
         },
 
         "timestamp": datetime.now(
@@ -211,7 +367,7 @@ def infer():
 
 
     # --------------------------------
-    # 6. Save result to Firestore
+    # 10. Save result to Firestore
     # --------------------------------
 
     try:
@@ -222,22 +378,26 @@ def infer():
             response
         )
 
-    except Exception as e:
+    except Exception:
+
+        logger.exception(
+            "Failed to save disaster result "
+            "for location_id=%s, image_id=%s",
+            location_id,
+            image_id
+        )
 
         return jsonify({
             "success": False,
-            "error": (
-                "Failed to save "
-                "disaster result"
-            ),
-            "details": str(e)
+            "error": "Failed to save disaster result"
         }), 500
 
 
     # --------------------------------
-    # 7. Return result
+    # 11. Return result
     # --------------------------------
 
     return jsonify(
         response
     ), 200
+

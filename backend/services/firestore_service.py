@@ -1,8 +1,18 @@
+
 import os
+import logging
 import firebase_admin
 
 from firebase_admin import credentials
 from firebase_admin import firestore
+from google.api_core.exceptions import GoogleAPIError
+
+
+# ---------------------------------
+# Logging
+# ---------------------------------
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------
@@ -21,18 +31,35 @@ SERVICE_ACCOUNT_PATH = os.path.join(
 )
 
 
-if not firebase_admin._apps:
+# Check service account file
+if not os.path.exists(SERVICE_ACCOUNT_PATH):
 
-    cred = credentials.Certificate(
-        SERVICE_ACCOUNT_PATH
-    )
-
-    firebase_admin.initialize_app(
-        cred
+    raise FileNotFoundError(
+        "Firebase service account file not found"
     )
 
 
-db = firestore.client()
+try:
+
+    if not firebase_admin._apps:
+
+        cred = credentials.Certificate(
+            SERVICE_ACCOUNT_PATH
+        )
+
+        firebase_admin.initialize_app(
+            cred
+        )
+
+    db = firestore.client()
+
+except Exception:
+
+    logger.exception(
+        "Failed to initialize Firebase"
+    )
+
+    raise
 
 
 # ---------------------------------
@@ -44,6 +71,30 @@ def save_disaster_report(
     image_id,
     report_data
 ):
+
+    # Validate location_id
+    if not location_id:
+
+        raise ValueError(
+            "location_id is required"
+        )
+
+
+    # Validate image_id
+    if not image_id:
+
+        raise ValueError(
+            "image_id is required"
+        )
+
+
+    # Validate report data
+    if not isinstance(report_data, dict):
+
+        raise ValueError(
+            "report_data must be a dictionary"
+        )
+
 
     document_data = {
 
@@ -86,13 +137,81 @@ def save_disaster_report(
         )
     }
 
-    db.collection(
-        "disaster_locations"
-    ).document(
-        location_id
-    ).set(
-        document_data
-    )
+
+    # ---------------------------------
+    # Validate location
+    # ---------------------------------
+
+    location = document_data["location"]
+
+    if not isinstance(location, dict):
+
+        raise ValueError(
+            "location must be an object"
+        )
+
+
+    # ---------------------------------
+    # Validate severity
+    # ---------------------------------
+
+    try:
+
+        severity = float(
+            document_data["damage_severity"]
+        )
+
+    except (TypeError, ValueError):
+
+        raise ValueError(
+            "damage_severity must be a number"
+        )
+
+
+    if not 0 <= severity <= 1:
+
+        raise ValueError(
+            "damage_severity must be between 0 and 1"
+        )
+
+
+    document_data["damage_severity"] = severity
+
+
+    # ---------------------------------
+    # Save to Firestore
+    # ---------------------------------
+
+    try:
+
+        db.collection(
+            "disaster_locations"
+        ).document(
+            location_id
+        ).set(
+            document_data
+        )
+
+    except GoogleAPIError:
+
+        logger.exception(
+            "Firestore error while saving "
+            "location_id=%s",
+            location_id
+        )
+
+        raise
+
+    except Exception:
+
+        logger.exception(
+            "Unexpected error while saving "
+            "location_id=%s",
+            location_id
+        )
+
+        raise
+
 
     return True
 
@@ -103,20 +222,64 @@ def save_disaster_report(
 
 def get_all_hazards():
 
-    docs = (
-        db.collection(
-            "disaster_locations"
-        ).stream()
-    )
+    try:
 
-    hazards = []
+        docs = (
+            db.collection(
+                "disaster_locations"
+            ).stream()
+        )
 
-    for doc in docs:
+        hazards = []
 
-        data = doc.to_dict()
+        for doc in docs:
 
-        data["location_id"] = doc.id
+            try:
 
-        hazards.append(data)
+                data = doc.to_dict()
 
-    return hazards
+                if not isinstance(data, dict):
+
+                    logger.warning(
+                        "Skipping malformed Firestore "
+                        "document: %s",
+                        doc.id
+                    )
+
+                    continue
+
+
+                data["location_id"] = doc.id
+
+                hazards.append(data)
+
+            except Exception:
+
+                logger.exception(
+                    "Failed to process Firestore "
+                    "document: %s",
+                    doc.id
+                )
+
+
+        return hazards
+
+
+    except GoogleAPIError:
+
+        logger.exception(
+            "Firestore error while retrieving "
+            "disaster locations"
+        )
+
+        raise
+
+
+    except Exception:
+
+        logger.exception(
+            "Unexpected error while retrieving "
+            "disaster locations"
+        )
+
+        raise
