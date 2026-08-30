@@ -10,6 +10,26 @@ During disasters, obtaining accurate and timely information from affected areas 
 
 Caraxes aims to bridge this gap by combining citizen-generated reports with AI-powered damage assessment to enable faster and more informed decision-making.
 
+## Demo Videos
+
+### Victim Interface
+Demonstrates:
+- Authentication and role selection
+- Disaster reporting with image upload
+- SOS request creation
+- Safe zone recommendations
+
+🎥 [Watch Victim Interface Demo](demo_videos/victim_interface.mp4)
+
+### Rescuer Interface
+Demonstrates:
+- Incident monitoring dashboard
+- Disaster map visualization
+- SOS request management
+- Rescue coordination workflow
+
+🎥 [Watch Rescuer Interface Demo](demo_videos/rescuer_interface.mp4)
+
 ---
 
 ## Features
