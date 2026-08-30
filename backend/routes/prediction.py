@@ -4,12 +4,14 @@ import os
 import uuid
 
 from services.inference_service import run_inference
+from services.firestore_service import save_disaster_report
 
 
 prediction_bp = Blueprint(
     "prediction",
     __name__
 )
+
 
 UPLOAD_FOLDER = "uploads"
 
@@ -19,6 +21,7 @@ ALLOWED_EXTENSIONS = {
     "png"
 }
 
+
 os.makedirs(
     UPLOAD_FOLDER,
     exist_ok=True
@@ -26,21 +29,29 @@ os.makedirs(
 
 
 def allowed_file(filename):
+
     return (
         "." in filename
-        and filename.rsplit(".", 1)[1].lower()
+        and filename.rsplit(
+            ".",
+            1
+        )[1].lower()
         in ALLOWED_EXTENSIONS
     )
 
 
-@prediction_bp.route("/infer", methods=["POST"])
+@prediction_bp.route(
+    "/infer",
+    methods=["POST"]
+)
 def infer():
 
-    # -------------------------
+    # --------------------------------
     # 1. Check image
-    # -------------------------
+    # --------------------------------
 
     if "image" not in request.files:
+
         return jsonify({
             "success": False,
             "error": "Image is required"
@@ -49,36 +60,50 @@ def infer():
     image = request.files["image"]
 
     if image.filename == "":
+
         return jsonify({
             "success": False,
             "error": "No image selected"
         }), 400
 
     if not allowed_file(image.filename):
+
         return jsonify({
             "success": False,
-            "error": "Only JPG, JPEG and PNG images are allowed"
+            "error": (
+                "Only JPG, JPEG and PNG "
+                "images are allowed"
+            )
         }), 400
 
-    # -------------------------
-    # 2. Get metadata
-    # -------------------------
 
-    image_id = request.form.get("image_id")
+    # --------------------------------
+    # 2. Get metadata
+    # --------------------------------
+
+    image_id = request.form.get(
+        "image_id"
+    )
 
     if not image_id:
+
         return jsonify({
             "success": False,
             "error": "image_id is required"
         }), 400
 
-    location_id = request.form.get("location_id")
+
+    location_id = request.form.get(
+        "location_id"
+    )
 
     if not location_id:
+
         return jsonify({
             "success": False,
             "error": "location_id is required"
         }), 400
+
 
     source_type = request.form.get(
         "source_type",
@@ -88,9 +113,10 @@ def infer():
     lat = request.form.get("lat")
     lon = request.form.get("lon")
 
-    # -------------------------
-    # 3. Generate unique filename
-    # -------------------------
+
+    # --------------------------------
+    # 3. Generate filename
+    # --------------------------------
 
     extension = image.filename.rsplit(
         ".",
@@ -98,7 +124,8 @@ def infer():
     )[1].lower()
 
     filename = (
-        f"{uuid.uuid4().hex}.{extension}"
+        f"{uuid.uuid4().hex}."
+        f"{extension}"
     )
 
     image_path = os.path.join(
@@ -108,9 +135,10 @@ def infer():
 
     image.save(image_path)
 
-    # -------------------------
+
+    # --------------------------------
     # 4. AI inference
-    # -------------------------
+    # --------------------------------
 
     try:
 
@@ -126,11 +154,13 @@ def infer():
             "details": str(e)
         }), 500
 
-    # -------------------------
+
+    # --------------------------------
     # 5. Build response
-    # -------------------------
+    # --------------------------------
 
     response = {
+
         "success": True,
 
         "image_id": image_id,
@@ -140,8 +170,18 @@ def infer():
         "source_type": source_type,
 
         "location": {
-            "lat": float(lat) if lat else None,
-            "lon": float(lon) if lon else None
+
+            "lat": (
+                float(lat)
+                if lat
+                else None
+            ),
+
+            "lon": (
+                float(lon)
+                if lon
+                else None
+            )
         },
 
         "timestamp": datetime.now(
@@ -169,4 +209,35 @@ def infer():
         )
     }
 
-    return jsonify(response), 200
+
+    # --------------------------------
+    # 6. Save result to Firestore
+    # --------------------------------
+
+    try:
+
+        save_disaster_report(
+            location_id,
+            image_id,
+            response
+        )
+
+    except Exception as e:
+
+        return jsonify({
+            "success": False,
+            "error": (
+                "Failed to save "
+                "disaster result"
+            ),
+            "details": str(e)
+        }), 500
+
+
+    # --------------------------------
+    # 7. Return result
+    # --------------------------------
+
+    return jsonify(
+        response
+    ), 200
