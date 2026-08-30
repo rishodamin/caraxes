@@ -5,26 +5,24 @@ Caraxes is a prototype disaster intelligence and rescue coordination platform de
 The platform combines citizen-reported information with AI-based infrastructure damage assessment to provide a clearer picture of the situation on the ground. By analyzing images and location data, Caraxes helps identify damaged infrastructure, prioritize incidents, and support rescue operations.
 
 ---
-
 ## Demo Videos
 
-### Victim Interface
+### Victim Interface Demo
+
+https://github.com/user-attachments/assets/0d74c6ea-332f-4680-945c-37ab40433513
+
 Demonstrates:
-- Authentication and role selection
+- User authentication
 - Disaster reporting with image upload
-- SOS request creation
+- SOS request submission
 - Safe zone recommendations
+- Citizen-side disaster assistance workflow
 
-🎥 [Watch Victim Interface Demo](demo_videos/victim_interface.mp4)
+---
 
-### Rescuer Interface
-Demonstrates:
-- Incident monitoring dashboard
-- Disaster map visualization
-- SOS request management
-- Rescue coordination workflow
+### Rescuer Interface Demo
 
-🎥 [Watch Rescuer Interface Demo](demo_videos/rescuer_interface.mp4)
+https://github.com/user-attachments/assets/df811a70-93c6-4c58-aba9-c76131aba4fc
 
 Demonstrates:
 - Incident monitoring dashboard
@@ -32,7 +30,6 @@ Demonstrates:
 - Damage assessment results
 - SOS request management
 - Rescue coordination workflow
-
 ---
 
 ## Problem Statement
