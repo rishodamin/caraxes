@@ -105,6 +105,7 @@ Caraxes aims to bridge this gap by combining citizen-generated reports with AI-p
 ### Maps & Geospatial
 - OpenStreetMap
 
+
 ---
 
 ## Project Structure
@@ -112,9 +113,52 @@ Caraxes aims to bridge this gap by combining citizen-generated reports with AI-p
 ```text
 caraxes/
 │
-├── frontend/             # Flutter application
-├── backend/              # Flask APIs and services
-├── ai/                   # AI models and inference
-├── demo_videos/          # Prototype demonstration videos
-├── docs/                 # Architecture diagrams and assets
+├── frontend/          # Flutter application
+├── backend/           # Flask APIs and services
+├── ai/                # AI models and inference
+├── docs/              # Architecture diagrams and assets
 └── README.md
+```
+
+---
+
+## Prototype Scope
+
+This repository contains the hackathon prototype developed during a limited-time sprint.
+
+The current implementation focuses on demonstrating the core workflow of the platform:
+
+- Citizen incident reporting
+- SOS request submission
+- Infrastructure damage detection
+- Incident mapping and visualization
+- Emergency route generation
+
+The goal of the prototype is to validate the overall concept and demonstrate how citizen-generated information can be combined with AI-based analysis to support disaster response.
+
+---
+
+## Future Scope
+
+The complete vision for Caraxes includes:
+
+- Infrastructure failure prediction
+- Dynamic safe-zone recommendation
+- Multi-source data validation
+- Offline-first communication support
+- Disaster recovery simulation
+- Real-time rescuer tracking
+- Advanced resource allocation and prioritization
+
+---
+
+## Repository Status
+
+⚠️ This project is currently a hackathon prototype and should be considered a proof of concept. Features, architecture, and workflows may evolve in future iterations.
+
+---
+
+## Team Caraxes
+
+Built as part of a Smart India Hackathon internal hackathon.
+
