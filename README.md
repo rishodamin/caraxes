@@ -9,7 +9,7 @@ The platform combines citizen-reported information with AI-based infrastructure 
 
 ### Victim Interface Demo
 
-https://github.com/user-attachments/assets/0d74c6ea-332f-4680-945c-37ab40433513
+https://github.com/user-attachments/assets/df811a70-93c6-4c58-aba9-c76131aba4fc
 
 Demonstrates:
 - User authentication
@@ -22,7 +22,8 @@ Demonstrates:
 
 ### Rescuer Interface Demo
 
-https://github.com/user-attachments/assets/df811a70-93c6-4c58-aba9-c76131aba4fc
+https://github.com/user-attachments/assets/0d74c6ea-332f-4680-945c-37ab40433513
+
 
 Demonstrates:
 - Incident monitoring dashboard
