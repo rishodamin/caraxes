@@ -1,4 +1,3 @@
-import 'package:caraxes_app/pages/citizen/safe_zones_screen.dart';
 import 'package:caraxes_app/pages/rescuer/disaster_locations.dart';
 import 'package:caraxes_app/pages/rescuer/sos_page.dart';
 import 'package:caraxes_app/pages/victim/safe_zone_page.dart';
