@@ -1,9 +1,9 @@
 import 'dart:io';
+import 'package:caraxes_app/services/app_config.dart';
 import 'package:http/http.dart' as http;
 
 class ReportService {
-  static const String backendUrl = "http://10.53.19.157:5000/infer";
-
+  String get backendUrl => AppConfig.inferUrl;
   Future<void> uploadDisasterReport({
     required File image,
     required String imageId,
